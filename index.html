@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق الاختبار التفاعلي</title>
+    
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container" id="quiz-container">
+    <div id="quiz-ui">
+        <div class="progress-bar"><div id="progress"></div></div>
+        <div class="timer" id="timer">الوقت المتبقي: 15</div>
+        <h2 id="question">جاري التحميل...</h2>
+        <div class="options" id="options"></div>
+    </div>
+
+    <div id="result-ui" class="hidden">
+        <h2>انتهى الاختبار!</h2>
+        <div class="score-box" id="final-score"></div>
+        <button onclick="location.reload()">إعادة المحاولة</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "ما هي عاصمة المملكة العربية السعودية؟", a: ["الرياض", "جدة", "الدمام", "مكة"], correct: 0 },
+        { q: "ما هو أكبر محيط في العالم؟", a: ["الأطلسي", "الهادي", "الهندي", "المتجمد"], correct: 1 },
+        { q: "كم عدد كواكب المجموعة الشمسية؟", a: ["7", "8", "9", "10"], correct: 1 }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let timeLeft = 15;
+    let timerInterval;
+
+    const qEl = document.getElementById('question');
+    const optEl = document.getElementById('options');
+    const progEl = document.getElementById('progress');
+    const timerEl = document.getElementById('timer');
+    const quizUI = document.getElementById('quiz-ui');
+    const resUI = document.getElementById('result-ui');
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = `الوقت المتبقي: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                nextQuestion();
+            }
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        clearInterval(timerInterval);
+        if (currentIdx >= questions.length) return showResults();
+        
+        timeLeft = 15;
+        startTimer();
+        
+        const data = questions[currentIdx];
+        qEl.innerText = data.q;
+        optEl.innerHTML = '';
+        progEl.style.width = `${(currentIdx / questions.length) * 100}%`;
+
+        data.a.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if (i === data.correct) score++;
+                nextQuestion();
+            };
+            optEl.appendChild(btn);
+        });
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        loadQuestion();
+    }
+
+    function showResults() {
+        quizUI.classList.add('hidden');
+        resUI.classList.remove('hidden');
+        document.getElementById('final-score').innerText = `نتيجتك: ${score} من ${questions.length}`;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
